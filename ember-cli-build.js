@@ -17,6 +17,9 @@ module.exports = function (app) {
     }),
     new Funnel(__dirname + '/tests', {
       destDir: 'tests'
+    }),
+    new Funnel(__dirname + '/demo', {
+      destDir: 'demo'
     })
   ]);
 
@@ -29,8 +32,7 @@ module.exports = function (app) {
       input: 'lib/index.js',
       output: {
         file: 'es6/backburner.js',
-        format: 'es',
-        sourcemap: true
+        format: 'es'
       },
       format: 'es',
       plugins: [
@@ -52,12 +54,10 @@ module.exports = function (app) {
           file: 'named-amd/backburner.js',
           exports: 'named',
           format: 'amd',
-          amd: { id: 'backburner' },
-          sourcemap: true
+          amd: { id: 'backburner' }
         }, {
           file: 'backburner.js',
-          format: 'cjs',
-          sourcemap: true
+          format: 'cjs'
         }]
       }
     }),
@@ -78,6 +78,22 @@ module.exports = function (app) {
         }]
       }
     }),
+    new Rollup(compiled, {
+      annotation: 'named-amd/demo.js',
+      rollup: {
+        input: 'demo/index.js',
+        external: ['backburner'],
+        plugins: [
+          loadWithInlineMap(),
+          buble()
+        ],
+        output: [{
+          file: 'named-amd/demo.js',
+          format: 'amd',
+          amd: { id: 'backburner-demo' }
+        }]
+      }
+    }),
     new Funnel(path.dirname(require.resolve('qunit')), {
       annotation: 'tests/qunit.{js,css}',
       destDir: 'tests',
@@ -85,11 +101,14 @@ module.exports = function (app) {
     }),
     new Funnel(path.dirname(require.resolve('loader.js')), {
       annotation: 'tests/loader.js',
-      destDir: 'tests',
       files: ['loader.js']
     }),
     new Funnel(__dirname + '/tests', {
       destDir: 'tests',
+      files: ['index.html']
+    }),
+    new Funnel(__dirname + '/demo', {
+      destDir: 'demo',
       files: ['index.html']
     })
   ], {
